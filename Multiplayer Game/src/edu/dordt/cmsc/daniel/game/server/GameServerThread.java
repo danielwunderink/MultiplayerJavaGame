@@ -9,13 +9,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 import edu.dordt.cmsc.daniel.game.Player;
+import edu.dordt.cmsc.daniel.game.PlayerDataPackage;
 
 public class GameServerThread extends Thread implements Observer {
 
 	ObjectOutputStream os;
 	ObjectInputStream is;
     
-    String clientName;
+    Player clientPlayer;
 	Socket clientSocket;
 	
 	GameServerThreadList threadList;
@@ -47,18 +48,20 @@ public class GameServerThread extends Thread implements Observer {
 	 * @param message - A string message
 	 * @throws IOException
 	 */
-	public void sendData(Player player) throws IOException {
-		os.writeObject(new Player(player));
+	public synchronized void sendData(PlayerDataPackage playerData) throws IOException {
+		os.writeObject(new PlayerDataPackage(playerData.getPlayerData(),playerData.hasDisconnected()));
 	}
 	
 	/**
-	 * Accesses all other threads to print a message to each client.
+	 * Accesses all other threads except the current one to print a message to each client.
 	 * @param message
 	 * @throws IOException
 	 */
-	public void broadcastData(Player player) throws IOException {
+	public void broadcastData(PlayerDataPackage playerData) throws IOException {
 		for (GameServerThread connection : connections) {
-			connection.sendData(player);
+			if (connection != this) {
+				connection.sendData(playerData);
+			}
 		}
 	}
 	
@@ -75,18 +78,24 @@ public class GameServerThread extends Thread implements Observer {
 		}
 		
 		//sends the client input to every other client
-		Player clientInput;
+		PlayerDataPackage clientInput;
 		try {
-			while ((clientInput = ((Player) is.readObject())) != null) {
+			clientPlayer = ((PlayerDataPackage)is.readObject()).getPlayerData();
+			while ((clientInput = ((PlayerDataPackage) is.readObject())) != null) {
+				//System.out.println(this+": "+clientInput);
 	        	broadcastData(clientInput);
 	        	//System.out.println("sending data...");
 	        }
-			System.out.println(clientName + " has left the chat room");
+		} catch (IOException | ClassNotFoundException e) {
+			System.out.println(clientPlayer.getID() + " has disconnected");
+			try {
+				broadcastData(new PlayerDataPackage(new Player(clientPlayer),true));
+			} catch (IOException e1) {
+				System.out.println("Error sending last package");
+				e1.printStackTrace();
+			}
 			threadList.removeThread(this);
 			threadList.deleteObserver(this);
-		} catch (IOException | ClassNotFoundException e) {
-			System.out.println(clientName + " has left the chat room");
-			e.printStackTrace();
 		}
 		
 	}

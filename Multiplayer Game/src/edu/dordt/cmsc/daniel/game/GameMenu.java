@@ -68,6 +68,10 @@ public class GameMenu extends JPanel {
 		ipTextPanel = newTextAreaPanel(ipText);
 		portTextPanel = newTextAreaPanel(portText);
 		
+		//for Testing Purposes
+		ipField.setText("10.85.212.1");
+		portField.setText("25565");
+		
 		this.setLayout(new GridLayout(9, 1, 70, 2));		
 		
 		startGame.addActionListener(new ActionListener() {

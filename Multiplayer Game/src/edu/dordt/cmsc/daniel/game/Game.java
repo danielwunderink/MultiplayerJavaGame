@@ -72,8 +72,9 @@ public class Game {
         //menu loop
         gameRunning = false;
         while (!gameRunning) {
-        	System.out.println(playerName+" "+serverIP+" "+serverPort);
+        	System.out.print("");
         }
+        System.out.println(playerName+" "+serverIP+" "+serverPort);
         
         frame.remove(gameMenu);
         
@@ -88,9 +89,9 @@ public class Game {
         
         frame.pack();
         
+        gameRunning = true;
         (new GameLoop()).start();
         (new GameClientThread()).start();
-        gameRunning = true;
 	}
 	
 	private Game() {

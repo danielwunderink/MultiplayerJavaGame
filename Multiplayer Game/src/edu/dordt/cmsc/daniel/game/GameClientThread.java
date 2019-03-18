@@ -38,19 +38,23 @@ public class GameClientThread extends Thread implements Observer {
 				ObjectInputStream is = new ObjectInputStream(socket.getInputStream());
 			){
 			
-			OutputToServerThread outputToServerThread = new OutputToServerThread(os, this);
+			OutputToServerThread outputToServerThread = new OutputToServerThread(os);
 			outputToServerThread.start();
 			
 			Object input;
 			try {
 				while ((input = is.readObject()) != null) {
-		        	Player player = ((Player)input);
+					PlayerDataPackage playerData = ((PlayerDataPackage)input);
+		        	Player player = playerData.getPlayerData();
 		        	boolean found = false;
 		        	for (int i=0; i<playerList.size(); i++) {
 		        		if (player.getID() == playerList.get(i).getID()) {
 		        			playerList.get(i).setLocation(player.getX(), player.getY());
 		        			found = true;
 		        			//System.out.println("received data");
+		        			if (playerData.hasDisconnected()) {
+		        				playerList.remove(i);
+		        			}
 		        		}
 		        	}
 		        	if (found) {
@@ -60,10 +64,13 @@ public class GameClientThread extends Thread implements Observer {
 		        	}
 		        }
 			} catch (IOException | ClassNotFoundException e) {
+				System.out.println(playerList);
+				for (Player player : playerList) {
+					System.out.println(player.getID());
+				}
 				e.printStackTrace();
 			}
 	        
-	        is.readObject();
 	        socket.close();
 		} catch (Exception e) {
 			System.out.println("ERROR");
@@ -90,30 +97,21 @@ public class GameClientThread extends Thread implements Observer {
 		private Game game = Game.getInstance();
 		
 		private ObjectOutputStream os;
-		private GameClientThread gameClientThread;
 		private Player player;
 		
-		public OutputToServerThread(ObjectOutputStream os, GameClientThread gameClientThread) {
-			this.gameClientThread = gameClientThread;
+		public OutputToServerThread(ObjectOutputStream os) {
 			this.os = os;
 			this.player = game.getPlayer();
 		}
 		
 		public void run() {
 			while (true) {
-				if (gameClientThread.getOutputReady()) {
-					try {
-						os.writeObject(new Player(player));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					gameClientThread.setOutputReady(false);
-				}
 				try {
-					os.writeObject(new Player(player));
+					os.writeObject(new PlayerDataPackage(player));
 					sleep(16);
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
+					break;
 				}
 			}
 		}

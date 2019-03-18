@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 
 public class GameScreen extends JPanel {
 	
-	private int sizeWidth = 300;
-    private int sizeHeight = 300;
+	private int sizeWidth = 600;
+    private int sizeHeight = 400;
     private int offsetWidth = 30;
     private int offsetHeight = 30;
     private int scale = 10;
@@ -26,6 +26,7 @@ public class GameScreen extends JPanel {
     	for (int i=0; i<players.size(); i++) {
     		g.setColor(players.get(i).getColor());  
         	g.fillRect(players.get(i).getX(), players.get(i).getY(), players.get(i).getSizeX(), players.get(i).getSizeY());
+        	g.drawString(players.get(i).getID(), players.get(i).getX(), players.get(i).getY()+players.get(i).getSizeY()+10);
     	}
     	
     	//System.out.println(game.getPlayer().getX());

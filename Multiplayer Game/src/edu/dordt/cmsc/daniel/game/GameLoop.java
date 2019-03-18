@@ -19,7 +19,7 @@ public class GameLoop extends Thread {
 	public void run() {
 		long lastTime = System.nanoTime();
 		int fps;
-		while (true) {
+		while (game.getGameRunning()) {
 		  long current = System.nanoTime();
 		  long elapsed = current - lastTime;
 		  player.processMovement(elapsed, keyHandler);
@@ -36,6 +36,7 @@ public class GameLoop extends Thread {
 		  }
 		  //System.out.println(player.getX());
 		}
+		System.out.println("Game Loop Ended");
 	}
 	
 	public int getFPS(long frameTimeNS) {
