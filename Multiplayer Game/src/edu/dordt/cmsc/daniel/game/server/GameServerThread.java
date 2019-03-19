@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import edu.dordt.cmsc.daniel.game.Player;
 import edu.dordt.cmsc.daniel.game.PlayerDataPackage;
@@ -21,7 +22,7 @@ public class GameServerThread extends Thread implements Observer {
 	
 	GameServerThreadList threadList;
 	
-	ArrayList<GameServerThread> connections = new ArrayList<GameServerThread>();
+	CopyOnWriteArrayList<GameServerThread> connections = new CopyOnWriteArrayList<GameServerThread>();
 	
 	/**
 	 * Constructor that adds this thread to the observable list.
