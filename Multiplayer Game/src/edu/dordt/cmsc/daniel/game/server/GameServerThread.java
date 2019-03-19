@@ -49,7 +49,10 @@ public class GameServerThread extends Thread implements Observer {
 	 * @throws IOException
 	 */
 	public synchronized void sendData(PlayerDataPackage playerData) throws IOException {
-		os.writeObject(new PlayerDataPackage(playerData.getPlayerData(),playerData.hasDisconnected()));
+		//only write if the outputstream is active
+		if (os != null) {
+			os.writeObject(new PlayerDataPackage(playerData.getPlayerData(),playerData.hasDisconnected()));
+		}		
 	}
 	
 	/**
